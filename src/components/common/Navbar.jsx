@@ -1,18 +1,19 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
+import Link from 'next/link'
+import { useState, useEffect } from 'react'
 
 export default function Navbar() {
-  const [dark, setDark] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [dark, setDark] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     if (dark) {
-      document.documentElement.classList.add("dark");
+      document.documentElement.classList.add('dark')
     } else {
-      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.remove('dark')
     }
-  }, [dark]);
+  }, [dark])
 
   return (
     <nav className="w-full bg-(--primary) text-(--bg) px-4 py-4 shadow-lg">
@@ -30,15 +31,18 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="hidden md:block hover:text-(--accent)">
+          <Link
+            href="/login"
+            className="hidden md:block hover:text-(--accent) font-semibold"
+          >
             Login
-          </button>
+          </Link>
 
           <button
             onClick={() => setDark(!dark)}
             className="bg-(--accent) text-(--text) px-3 py-1 rounded-lg"
           >
-            {dark ? "☀️" : "🌙"}
+            {dark ? '☀️' : '🌙'}
           </button>
 
           <button
@@ -64,11 +68,15 @@ export default function Navbar() {
           <button className="block w-full text-left hover:text-(--accent)">
             Tutorials
           </button>
-          <button className="block w-full text-left hover:text-(--accent)">
+          <Link
+            href="/login"
+            className="block w-full text-left hover:text-(--accent) font-semibold"
+            onClick={() => setMenuOpen(false)}
+          >
             Login
-          </button>
+          </Link>
         </div>
       )}
     </nav>
-  );
+  )
 }

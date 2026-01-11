@@ -17,6 +17,25 @@ export default function Navbar() {
     }
   }, [dark])
 
+  // Links for Admin vs User
+  const adminLinks = [
+    { name: 'Dashboard', href: '/admin/dashboard' },
+    { name: 'Manage Books', href: '/admin/books' },
+    { name: 'Manage Genres', href: '/admin/genres' },
+    { name: 'Manage Users', href: '/admin/users' },
+    { name: 'Moderate Reviews', href: '/admin/reviews' },
+    { name: 'Manage Tutorials', href: '/admin/tutorials' },
+  ]
+
+  const userLinks = [
+    { name: 'Dashboard', href: '/dashboard' },
+    { name: 'Browse', href: '/browse' },
+    { name: 'My Library', href: '/library' },
+    { name: 'Tutorials', href: '/tutorials' },
+  ]
+
+  const links = session?.user?.role === 'admin' ? adminLinks : userLinks
+
   return (
     <nav className="w-full bg-(--primary) text-(--bg) px-4 py-4 shadow-lg">
       <div className="flex justify-between items-center">
@@ -25,13 +44,16 @@ export default function Navbar() {
           <h1 className="text-xl font-extrabold">BookWorm</h1>
         </div>
 
+        {/* Desktop Links */}
         <div className="hidden md:flex gap-6 text-sm font-semibold">
-          <button className="hover:text-(--accent)">Dashboard</button>
-          <button className="hover:text-(--accent)">Browse</button>
-          <button className="hover:text-(--accent)">My Library</button>
-          <button className="hover:text-(--accent)">Tutorials</button>
+          {links.map(link => (
+            <Link key={link.href} href={link.href} className="hover:text-(--accent)">
+              {link.name}
+            </Link>
+          ))}
         </div>
 
+        {/* User Actions */}
         <div className="flex items-center gap-3">
           {!session ? (
             <>
@@ -73,20 +95,19 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden mt-4 bg-(--primary) rounded-lg p-4 space-y-3 text-sm">
-          <button className="block w-full text-left hover:text-(--accent)">
-            Dashboard
-          </button>
-          <button className="block w-full text-left hover:text-(--accent)">
-            Browse Books
-          </button>
-          <button className="block w-full text-left hover:text-(--accent)">
-            My Library
-          </button>
-          <button className="block w-full text-left hover:text-(--accent)">
-            Tutorials
-          </button>
+          {links.map(link => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="block w-full text-left hover:text-(--accent)"
+              onClick={() => setMenuOpen(false)}
+            >
+              {link.name}
+            </Link>
+          ))}
 
           {!session ? (
             <>

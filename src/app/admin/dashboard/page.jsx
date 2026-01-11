@@ -6,12 +6,7 @@ export default async function AdminDashboard() {
   const session = await getServerSession(authOptions);
 
   if (!session) redirect("/auth/login");
-  if (session.user.role !== "admin") redirect("/protected");
+  if (session.user.role !== "admin") redirect("/library");
 
-  return (
-    <div className="p-10">
-      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-      <p>Manage users, books, genres, reviews.</p>
-    </div>
-  );
+  return <h1>Admin Dashboard</h1>;
 }

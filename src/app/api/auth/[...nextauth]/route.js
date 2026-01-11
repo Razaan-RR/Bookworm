@@ -1,62 +1,50 @@
-import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
+import NextAuth from 'next-auth'
+import CredentialsProvider from 'next-auth/providers/credentials'
+import { connectToDatabase } from '@/lib/db'
+import { verifyPassword } from '@/lib/auth'
 
 export const authOptions = {
+  session: { strategy: 'jwt' },
   providers: [
     CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-
       async authorize(credentials) {
-        const { email, password } = credentials;
+        const db = await connectToDatabase()
+        const user = await db
+          .collection('users')
+          .findOne({ email: credentials.email })
 
-        // TEMP: fake login for now (we replace with backend later)
-        if (email === "admin@bookworm.com" && password === "123456") {
-          return {
-            id: 1,
-            name: "Admin User",
-            email,
-            role: "admin",
-          };
+        if (!user) throw new Error('No user found')
+
+        const isValid = await verifyPassword(
+          credentials.password,
+          user.password
+        )
+        if (!isValid) throw new Error('Wrong password')
+
+        return {
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+          role: user.role,
         }
-
-        if (email === "user@bookworm.com" && password === "123456") {
-          return {
-            id: 2,
-            name: "Normal User",
-            email,
-            role: "user",
-          };
-        }
-
-        return null;
       },
     }),
   ],
-
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role;
-      }
-      return token;
+      if (user) token.role = user.role
+      return token
     },
-
     async session({ session, token }) {
-      session.user.role = token.role;
-      return session;
+      session.user.role = token.role
+      return session
     },
   },
-
   pages: {
-    signIn: "/login",
+    signIn: '/auth/login',
   },
-
   secret: process.env.NEXTAUTH_SECRET,
-};
+}
 
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
+const handler = NextAuth(authOptions)
+export { handler as GET, handler as POST }

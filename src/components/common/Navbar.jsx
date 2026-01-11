@@ -2,10 +2,12 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { useSession, signOut } from 'next-auth/react'
 
 export default function Navbar() {
   const [dark, setDark] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const { data: session } = useSession() // NextAuth session
 
   useEffect(() => {
     if (dark) {
@@ -31,12 +33,29 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="hidden md:block hover:text-(--accent) font-semibold"
-          >
-            Login
-          </Link>
+          {!session ? (
+            <>
+              <Link
+                href="/login"
+                className="hidden md:block hover:text-(--accent) font-semibold"
+              >
+                Login
+              </Link>
+              <Link
+                href="/register"
+                className="hidden md:block hover:text-(--accent) font-semibold"
+              >
+                Register
+              </Link>
+            </>
+          ) : (
+            <button
+              onClick={() => signOut({ callbackUrl: '/login' })}
+              className="hidden md:block hover:text-(--accent) font-semibold"
+            >
+              Logout
+            </button>
+          )}
 
           <button
             onClick={() => setDark(!dark)}
@@ -68,13 +87,35 @@ export default function Navbar() {
           <button className="block w-full text-left hover:text-(--accent)">
             Tutorials
           </button>
-          <Link
-            href="/login"
-            className="block w-full text-left hover:text-(--accent) font-semibold"
-            onClick={() => setMenuOpen(false)}
-          >
-            Login
-          </Link>
+
+          {!session ? (
+            <>
+              <Link
+                href="/login"
+                className="block w-full text-left hover:text-(--accent) font-semibold"
+                onClick={() => setMenuOpen(false)}
+              >
+                Login
+              </Link>
+              <Link
+                href="/register"
+                className="block w-full text-left hover:text-(--accent) font-semibold"
+                onClick={() => setMenuOpen(false)}
+              >
+                Register
+              </Link>
+            </>
+          ) : (
+            <button
+              onClick={() => {
+                signOut({ callbackUrl: '/login' })
+                setMenuOpen(false)
+              }}
+              className="block w-full text-left hover:text-(--accent) font-semibold"
+            >
+              Logout
+            </button>
+          )}
         </div>
       )}
     </nav>

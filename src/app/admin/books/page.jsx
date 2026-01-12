@@ -4,22 +4,47 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import AddBookModal from '@/components/admin/AddBookModal'
+import EditBookModal from '@/components/admin/EditBookModal'
 
 export default function ManageBooksPage() {
   const [books, setBooks] = useState([])
   const [loading, setLoading] = useState(true)
-  const [modalOpen, setModalOpen] = useState(false)
+  const [addModalOpen, setAddModalOpen] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [selectedBook, setSelectedBook] = useState(null)
 
   const fetchBooks = async () => {
     try {
       setLoading(true)
-      const res = await fetch('/api/books')
+      const res = await fetch('/api/admin/books')
       const data = await res.json()
       setBooks(data)
     } catch (error) {
       console.error(error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleEdit = (book) => {
+    setSelectedBook(book)
+    setEditModalOpen(true)
+  }
+
+  const handleDelete = async (id) => {
+    if (!confirm('Are you sure you want to delete this book?')) return
+
+    try {
+      const res = await fetch(`/api/admin/books/${id}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (res.ok) {
+        fetchBooks()
+        alert(data.message)
+      } else {
+        alert(data.error)
+      }
+    } catch (error) {
+      console.error(error)
     }
   }
 
@@ -45,7 +70,7 @@ export default function ManageBooksPage() {
         </div>
 
         <button
-          onClick={() => setModalOpen(true)}
+          onClick={() => setAddModalOpen(true)}
           className="
             px-5 py-2.5 rounded-xl
             bg-[var(--primary)] text-white
@@ -101,6 +126,21 @@ export default function ManageBooksPage() {
                   {book.title}
                 </h3>
                 <p className="text-sm text-[var(--text)]/70">{book.author}</p>
+
+                <div className="mt-3 flex gap-2">
+                  <button
+                    onClick={() => handleEdit(book)}
+                    className="px-3 py-1 text-sm rounded bg-yellow-400 text-black hover:bg-yellow-500"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(book._id)}
+                    className="px-3 py-1 text-sm rounded bg-red-500 text-white hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -108,10 +148,19 @@ export default function ManageBooksPage() {
       </div>
 
       <AddBookModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        isOpen={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
         onBookAdded={fetchBooks}
       />
+
+      {selectedBook && (
+        <EditBookModal
+          isOpen={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          book={selectedBook}
+          onBookUpdated={fetchBooks}
+        />
+      )}
     </motion.div>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 
@@ -8,11 +8,26 @@ export default function AddBookModal({ isOpen, onClose, onBookAdded }) {
   const [form, setForm] = useState({
     title: '',
     author: '',
-    genreId: '',
+    genreId: '', // genre selected
     description: '',
     coverImage: '',
   })
   const [submitting, setSubmitting] = useState(false)
+  const [genres, setGenres] = useState([]) // <-- for genre dropdown
+
+  useEffect(() => {
+    if (!isOpen) return
+    const fetchGenres = async () => {
+      try {
+        const res = await fetch('/api/admin/genres')
+        const data = await res.json()
+        setGenres(data)
+      } catch (err) {
+        console.error('Failed to fetch genres', err)
+      }
+    }
+    fetchGenres()
+  }, [isOpen])
 
   if (!isOpen) return null
 
@@ -24,14 +39,14 @@ export default function AddBookModal({ isOpen, onClose, onBookAdded }) {
     e.preventDefault()
     setSubmitting(true)
     try {
-      const res = await fetch('/api/books', {
+      const res = await fetch('/api/admin/books', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       })
       const data = await res.json()
       if (res.ok) {
-        onBookAdded() // refresh book list
+        onBookAdded()
         onClose()
         setForm({
           title: '',
@@ -81,15 +96,22 @@ export default function AddBookModal({ isOpen, onClose, onBookAdded }) {
             className="p-2 rounded-lg border border-white/30 bg-white/20 backdrop-blur-sm"
             required
           />
-          <input
-            type="text"
+          {/* ✅ Genre dropdown */}
+          <select
             name="genreId"
-            placeholder="Genre"
             value={form.genreId}
             onChange={handleChange}
             className="p-2 rounded-lg border border-white/30 bg-white/20 backdrop-blur-sm"
             required
-          />
+          >
+            <option value="">Select Genre</option>
+            {genres.map((g) => (
+              <option key={g._id} value={g._id}>
+                {g.name}
+              </option>
+            ))}
+          </select>
+
           <input
             type="file"
             accept="image/*"
@@ -106,11 +128,8 @@ export default function AddBookModal({ isOpen, onClose, onBookAdded }) {
                   body: formData,
                 })
                 const data = await res.json()
-                if (data.url) {
-                  setForm({ ...form, coverImage: data.url })
-                } else {
-                  alert(data.error || 'Image upload failed')
-                }
+                if (data.url) setForm({ ...form, coverImage: data.url })
+                else alert(data.error || 'Image upload failed')
               } catch (err) {
                 console.error(err)
                 alert('Image upload failed')
@@ -124,7 +143,7 @@ export default function AddBookModal({ isOpen, onClose, onBookAdded }) {
             <Image
               src={form.coverImage}
               alt="Cover Preview"
-              width={96} 
+              width={96}
               height={128}
               className="rounded-md mt-2 object-cover"
             />

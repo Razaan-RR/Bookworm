@@ -26,22 +26,37 @@ export const authOptions = {
           name: user.name,
           email: user.email,
           role: user.role,
+          image: user.image || null,
         }
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.role = user.role
+      if (user) {
+        token.id = user.id
+        token.role = user.role
+        token.email = user.email
+        token.name = user.name
+      }
       return token
     },
+
     async session({ session, token }) {
+      session.user.id = token.id
       session.user.role = token.role
+      session.user.email = token.email
+      session.user.name = token.name
       return session
     },
+
+    async redirect({ url, baseUrl }) {
+      return `${baseUrl}/dashboard`
+    },
   },
+
   pages: {
-    signIn: '/auth/login',
+    signIn: '/login',
   },
   secret: process.env.NEXTAUTH_SECRET,
 }

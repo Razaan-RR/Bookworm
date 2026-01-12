@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 export default async function ProtectedPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session) redirect("/auth/login");
+  if (!session) redirect("/login");
   if (session.user.role === "admin") redirect("/admin/dashboard");
 
   return (

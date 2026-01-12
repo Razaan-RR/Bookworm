@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 
@@ -71,12 +72,21 @@ export default function Navbar() {
               </Link>
             </>
           ) : (
-            <button
-              onClick={() => signOut({ callbackUrl: '/login' })}
-              className="hidden md:block hover:text-(--accent) font-semibold"
-            >
-              Logout
-            </button>
+            <>
+              <Image
+                src={session.user.image || '/default-avatar.png'}
+                alt="Profile"
+                width={36}
+                height={36}
+                className="rounded-full object-cover border"
+              />
+              <button
+                onClick={() => signOut({ callbackUrl: '/login' })}
+                className="hidden md:block hover:text-(--accent) font-semibold"
+              >
+                Logout
+              </button>
+            </>
           )}
 
           <button

@@ -7,22 +7,28 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [image, setImage] = useState(null);
   const router = useRouter();
 
   async function submitHandler(e) {
     e.preventDefault();
 
-    const res = await fetch("/api/auth/register", {  
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("image", image);
+
+    const res = await fetch("/api/auth/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
+      body: formData,
     });
 
     const data = await res.json();
 
     if (res.ok) {
       alert("Registration successful");
-      router.push("/login");  
+      router.push("/login");
     } else {
       alert(data.message || "Something went wrong");
     }
@@ -32,6 +38,7 @@ export default function RegisterPage() {
     <form
       onSubmit={submitHandler}
       className="max-w-md mx-auto mt-20 p-6 shadow rounded-xl bg-white dark:bg-zinc-900"
+      encType="multipart/form-data"
     >
       <h2 className="text-2xl font-bold mb-4 text-center">Create Account</h2>
 
@@ -56,6 +63,14 @@ export default function RegisterPage() {
         placeholder="Password"
         required
         onChange={(e) => setPassword(e.target.value)}
+      />
+
+      <input
+        className="w-full mb-3 p-2 border rounded"
+        type="file"
+        accept="image/*"
+        required
+        onChange={(e) => setImage(e.target.files[0])}
       />
 
       <button className="w-full bg-green-600 hover:bg-green-700 text-white p-2 rounded">

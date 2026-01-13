@@ -51,7 +51,7 @@ export const authOptions = {
     },
 
     async redirect({ url, baseUrl }) {
-      return `${baseUrl}/dashboard`
+      return `${baseUrl}/login`
     },
   },
 

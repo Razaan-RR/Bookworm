@@ -72,7 +72,7 @@ export async function getCurrentUser() {
   if (!user) return null
 
   return {
-    _id: user._id.toString(), // ✅ make sure it is _id as string
+    id: user._id.toString(), 
     name: user.name,
     email: user.email,
     role: user.role,

@@ -11,5 +11,5 @@ export default async function Home() {
     redirect("/admin/dashboard");
   }
 
-  redirect("/library");
+  redirect("user/library");
 }

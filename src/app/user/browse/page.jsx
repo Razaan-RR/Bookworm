@@ -11,12 +11,13 @@ export default function BrowseBooksPage() {
   const [search, setSearch] = useState('')
   const [selectedGenre, setSelectedGenre] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
-  const [booksPerPage] = useState(12)
+  const booksPerPage = 12
 
+  // Fetch books & genres from user API
   const fetchBooks = async () => {
     try {
       setLoading(true)
-      const res = await fetch('/api/books')
+      const res = await fetch('/api/user/books')
       const data = await res.json()
       setBooks(data.books || [])
       setGenres(data.genres || [])
@@ -33,17 +34,20 @@ export default function BrowseBooksPage() {
     fetchBooks()
   }, [])
 
-  const filteredBooks =
-    (books || [])
-      .filter(
-        (book) =>
-          book.title.toLowerCase().includes(search.toLowerCase()) ||
-          book.author.toLowerCase().includes(search.toLowerCase())
-      )
-      .filter(
-        (book) => selectedGenre === 'all' || book.genre?._id === selectedGenre
-      ) || []
+  // Filter books by search and selected genre
+  const filteredBooks = (books || [])
+    .filter(
+      (book) =>
+        book.title.toLowerCase().includes(search.toLowerCase()) ||
+        book.author.toLowerCase().includes(search.toLowerCase())
+    )
+    .filter(
+      (book) =>
+        selectedGenre === 'all' ||
+        (book.genre && book.genre._id.toString() === selectedGenre)
+    )
 
+  // Pagination logic
   const indexOfLastBook = currentPage * booksPerPage
   const indexOfFirstBook = indexOfLastBook - booksPerPage
   const currentBooks = filteredBooks.slice(indexOfFirstBook, indexOfLastBook)
@@ -56,6 +60,7 @@ export default function BrowseBooksPage() {
       transition={{ duration: 0.6, ease: 'easeOut' }}
       className="min-h-screen px-4 py-6 md:px-8 bg-[var(--bg)] text-[var(--text)] overflow-x-hidden"
     >
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-[var(--primary)]">
@@ -66,6 +71,7 @@ export default function BrowseBooksPage() {
           </p>
         </div>
 
+        {/* Search & Genre Filter */}
         <div className="flex gap-2 flex-wrap">
           <input
             type="text"
@@ -81,7 +87,7 @@ export default function BrowseBooksPage() {
           >
             <option value="all">All Genres</option>
             {(genres || []).map((genre) => (
-              <option key={genre._id} value={genre._id}>
+              <option key={genre._id} value={genre._id.toString()}>
                 {genre.name}
               </option>
             ))}
@@ -89,6 +95,7 @@ export default function BrowseBooksPage() {
         </div>
       </div>
 
+      {/* Books Grid */}
       <div className="relative rounded-2xl p-4 md:p-6 bg-white/40 dark:bg-black/30 backdrop-blur-xl border border-white/20 shadow-xl">
         {loading ? (
           <div className="flex justify-center py-20 text-[var(--text)]/70">
@@ -111,24 +118,25 @@ export default function BrowseBooksPage() {
                 className="p-4 bg-white/30 dark:bg-black/20 backdrop-blur-md rounded-xl shadow-md flex flex-col"
               >
                 <Image
-                  src={book.cover}
+                  src={book.coverImage || '/default-cover.png'}
                   alt={book.title}
                   width={400}
                   height={300}
                   className="h-48 w-full object-cover rounded-lg mb-3"
                 />
+                <p className="mt-1 text-xs text-[var(--text)]/60">
+                  Genre: {book.genre?.name || 'Unknown'}
+                </p>
                 <h3 className="font-semibold text-[var(--primary)]">
                   {book.title}
                 </h3>
                 <p className="text-sm text-[var(--text)]/70">{book.author}</p>
-                <p className="mt-1 text-xs text-[var(--text)]/60">
-                  Genre: {book.genre?.name || 'Unknown'}
-                </p>
               </motion.div>
             ))}
           </div>
         )}
 
+        {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center gap-2 mt-6 flex-wrap">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (

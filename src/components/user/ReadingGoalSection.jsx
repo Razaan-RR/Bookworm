@@ -1,70 +1,80 @@
-// components/user/ReadingGoalSection.jsx
-"use client";
-
-import { useEffect, useState } from "react";
+'use client' // Must be at the very top
+import React, { useEffect, useState } from 'react'
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
+import 'react-circular-progressbar/dist/styles.css'
+import toast from 'react-hot-toast'
 
 export default function ReadingGoalSection({ userId }) {
-  const [goal, setGoal] = useState(0);
-  const [booksRead, setBooksRead] = useState(0);
-  const [inputGoal, setInputGoal] = useState("");
-
-  const fetchGoal = async () => {
-    if (!userId) return;
-
-    try {
-      const res = await fetch(`/api/reading-goal?userId=${userId}`);
-      const data = await res.json();
-
-      setGoal(data.readingGoal?.goal || 0);
-      setBooksRead(data.booksRead || 0);
-    } catch (err) {
-      console.error("Failed to fetch reading goal:", err);
-    }
-  };
+  const [stats, setStats] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    fetchGoal();
-  }, [userId]);
+    if (!userId) return
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!userId || !inputGoal) return;
-
-    try {
-      const res = await fetch("/api/reading-goal", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, goal: parseInt(inputGoal) }),
-      });
-
-      if (!res.ok) throw new Error("Failed to set goal");
-
-      setInputGoal("");
-      fetchGoal(); // refresh after setting goal
-    } catch (err) {
-      console.error(err);
-      alert("Failed to set goal");
+    const getStats = async () => {
+      try {
+        setLoading(true)
+        const res = await fetch(`/api/user/reading-stats?userId=${userId}`)
+        if (!res.ok) throw new Error('Failed to fetch')
+        const data = await res.json()
+        setStats(data)
+      } catch (err) {
+        console.error(err)
+        setError('Failed to load reading stats')
+        toast.error('Failed to load reading stats')
+      } finally {
+        setLoading(false)
+      }
     }
-  };
+
+    getStats()
+  }, [userId])
+
+  if (loading) return <p>Loading your reading goal...</p>
+  if (error) return <p className="text-red-500">{error}</p>
+
+  const progress = Math.min(
+    Math.round((stats.booksRead / stats.annualGoal) * 100),
+    100
+  )
 
   return (
-    <div className="space-y-2">
-      <p>Goal: {goal} books | Read: {booksRead} books</p>
-
-      <form onSubmit={handleSubmit} className="flex gap-2 items-center">
-        <input
-          type="number"
-          placeholder="Set your reading goal"
-          value={inputGoal}
-          onChange={(e) => setInputGoal(e.target.value)}
-          className="border px-2 py-1 rounded"
-          min={1}
-          required
-        />
-        <button type="submit" className="bg-blue-500 text-white px-3 py-1 rounded">
-          Save
-        </button>
-      </form>
+    <div className="bg-white/20 dark:bg-gray-900/30 backdrop-blur-lg rounded-2xl p-6 shadow-lg">
+      <h3 className="text-xl font-semibold mb-4">Your Reading Goal 📚</h3>
+      <div className="flex flex-col md:flex-row items-center gap-6">
+        <div className="w-36 h-36">
+          <CircularProgressbar
+            value={progress}
+            text={`${progress}%`}
+            styles={buildStyles({
+              pathColor: 'var(--accent)',
+              textColor: 'var(--text)',
+              trailColor: 'rgba(255,255,255,0.2)',
+            })}
+          />
+        </div>
+        <div className="flex-1 space-y-2">
+          <p>
+            Annual Goal: <b>{stats.annualGoal}</b>
+          </p>
+          <p>
+            Books Read: <b>{stats.booksRead}</b>
+          </p>
+          <p>
+            Total Pages Read: <b>{stats.pagesRead}</b>
+          </p>
+          <p>
+            Average Rating: <b>{stats.avgRating}/5</b>
+          </p>
+          <p>
+            Favorite Genre: <b>{stats.favoriteGenre}</b>
+          </p>
+          <p>
+            Reading Streak: <b>{stats.streak} days</b>
+          </p>
+        </div>
+      </div>
     </div>
-  );
+  )
 }

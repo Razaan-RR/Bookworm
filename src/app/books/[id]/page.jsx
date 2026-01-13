@@ -207,13 +207,25 @@ export default function BookDetailsPage() {
                   reviews.map((r) => (
                     <div
                       key={r._id}
-                      className="p-3 rounded-xl bg-white/20 dark:bg-black/20"
+                      className="p-3 rounded-xl bg-white/20 dark:bg-black/20 flex items-start gap-3"
                     >
-                      <p className="text-xs text-[var(--text)]/60">
-                        {r.userId?.name || 'Anonymous'} –{' '}
-                        {'⭐'.repeat(r.rating)}
-                      </p>
-                      <p className="text-sm text-[var(--text)]/80">{r.text}</p>
+                      {/* User Image */}
+                      <Image
+                        src={r.userId?.image || '/default-avatar.png'}
+                        alt={r.userId?.name || 'User'}
+                        width={40}
+                        height={40}
+                        className="rounded-full object-cover"
+                      />
+                      <div className="flex-1">
+                        <p className="text-xs text-[var(--text)]/60 font-medium">
+                          {r.userId?.name || 'Anonymous'} –{' '}
+                          {'⭐'.repeat(r.rating)}
+                        </p>
+                        <p className="text-sm text-[var(--text)]/80">
+                          {r.text}
+                        </p>
+                      </div>
                     </div>
                   ))
                 )}

@@ -38,3 +38,12 @@ body {
   --accent: #8b6b4f;
   --text: #f5efe7;
 }
+
+/* Hide horizontal scrollbar but keep scrolling */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

@@ -99,18 +99,21 @@ export default function MyLibraryPage() {
                   className="p-4 bg-white/30 dark:bg-black/20 backdrop-blur-md rounded-xl shadow-md flex flex-col"
                 >
                   <Image
-                    src={item.bookId.coverImage || '/default-cover.png'}
-                    alt={item.bookId.title}
+                    src={item.bookId?.coverImage || '/default-cover.png'}
+                    alt={item.bookId?.title || 'Unknown Book'}
                     width={400}
                     height={300}
                     className="h-48 w-full object-cover rounded-lg mb-3"
                   />
+
                   <h3 className="font-semibold text-[var(--primary)]">
-                    {item.bookId.title}
+                    {item.bookId?.title || 'Book not found'}
                   </h3>
+
                   <p className="text-sm text-[var(--text)]/70">
-                    {item.bookId.author}
+                    {item.bookId?.author || 'Unknown author'}
                   </p>
+
                   <p className="mt-1 text-xs text-[var(--text)]/60">
                     Shelf:{' '}
                     {item.shelf.charAt(0).toUpperCase() + item.shelf.slice(1)}

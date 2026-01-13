@@ -11,7 +11,7 @@ export default function BrowseBooksPage() {
   const [search, setSearch] = useState('')
   const [selectedGenre, setSelectedGenre] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
-  const booksPerPage = 12
+  const booksPerPage = 8
 
   // Fetch books & genres from user API
   const fetchBooks = async () => {

@@ -131,6 +131,14 @@ export default function BrowseBooksPage() {
                   {book.title}
                 </h3>
                 <p className="text-sm text-[var(--text)]/70">{book.author}</p>
+
+                {/* View Details Button */}
+                <button
+                  onClick={() => (window.location.href = `/books/${book._id}`)}
+                  className="mt-3 px-4 py-2 rounded-xl bg-[var(--primary)] text-white text-sm font-semibold transition-colors"
+                >
+                  View Details
+                </button>
               </motion.div>
             ))}
           </div>

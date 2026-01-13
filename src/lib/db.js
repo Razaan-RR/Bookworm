@@ -1,4 +1,5 @@
 import { MongoClient } from 'mongodb'
+import mongoose from 'mongoose'
 
 let client
 let clientPromise
@@ -12,7 +13,18 @@ if (!global._mongoClientPromise) {
 }
 
 clientPromise = global._mongoClientPromise
+
 export async function connectToDatabase() {
   const client = await clientPromise
   return client.db()
+}
+
+export async function connectDB() {
+  if (mongoose.connection.readyState >= 1) {
+    return
+  }
+
+  return mongoose.connect(uri, {
+    dbName: 'bookworm',
+  })
 }

@@ -4,6 +4,33 @@ import UserLibrary from '@/models/UserLibrary'
 import Book from '@/models/Book'
 import { getCurrentUser } from '@/lib/getCurrentUser'
 
+export async function GET() {
+  try {
+    // Connect to MongoDB via Mongoose
+    await connectDB()
+
+    // Get current logged-in user
+    const currentUser = await getCurrentUser()
+    if (!currentUser) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Fetch user's library with book details
+    const library = await UserLibrary.find({ userId: currentUser._id })
+      .populate('bookId')
+      .sort({ updatedAt: -1 })
+      .lean() // convert to plain JS objects, faster and safer
+
+    return NextResponse.json(library)
+  } catch (error) {
+    console.error('Fetch library error:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch user library' },
+      { status: 500 }
+    )
+  }
+}
+
 export async function POST(req) {
   try {
     await connectDB()
@@ -36,14 +63,12 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Book not found' }, { status: 404 })
     }
 
+    // Upsert: add or update the library entry
     const libraryEntry = await UserLibrary.findOneAndUpdate(
       { userId: currentUser._id, bookId },
-      {
-        shelf,
-        progress: shelf === 'read' ? 100 : 0,
-      },
-      { upsert: true, new: true }
-    )
+      { shelf, progress: shelf === 'read' ? 100 : 0 },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    ).lean()
 
     return NextResponse.json({
       message: 'Book added to your library',

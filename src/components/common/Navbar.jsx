@@ -8,7 +8,7 @@ import { useSession, signOut } from 'next-auth/react'
 export default function Navbar() {
   const [dark, setDark] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const { data: session } = useSession() // NextAuth session
+  const { data: session } = useSession() 
 
   useEffect(() => {
     if (dark) {

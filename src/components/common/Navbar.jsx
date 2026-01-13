@@ -29,10 +29,10 @@ export default function Navbar() {
   ]
 
   const userLinks = [
-    { name: 'Dashboard', href: 'user/dashboard' },
-    { name: 'Browse', href: 'user/browse' },
-    { name: 'My Library', href: 'user/library' },
-    { name: 'Tutorials', href: 'user/tutorials' },
+    { name: 'Dashboard', href: '/user/dashboard' },
+    { name: 'Browse', href: '/user/browse' },
+    { name: 'My Library', href: '/user/library' },
+    { name: 'Tutorials', href: '/user/tutorials' },
   ]
 
   const links = session?.user?.role === 'admin' ? adminLinks : userLinks

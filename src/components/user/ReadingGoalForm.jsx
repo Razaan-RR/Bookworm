@@ -17,11 +17,14 @@ const ReadingGoalForm = ({ userId, currentGoal, onGoalSet }) => {
     setError('')
 
     try {
-      const res = await fetch('/api/reading-goal', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, goal: Number(goal) }),
-      })
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/reading-goal`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, goal: Number(goal) }),
+        }
+      )
 
       if (!res.ok) throw new Error('Failed to set goal')
 

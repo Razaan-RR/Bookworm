@@ -11,7 +11,9 @@ export default function FollowUsers({ currentUserId }) {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch('/api/user/all')
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/all`
+        )
         const data = await res.json()
         const filtered = data.filter((u) => u._id !== currentUserId)
         setUsers(filtered)
@@ -43,14 +45,17 @@ export default function FollowUsers({ currentUserId }) {
     const isFollowing = followingIds.includes(targetUserId)
 
     try {
-      const res = await fetch('/api/user/follow', {
-        method: isFollowing ? 'DELETE' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          followerId: currentUserId,
-          followingId: targetUserId,
-        }),
-      })
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/follow`,
+        {
+          method: isFollowing ? 'DELETE' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            followerId: currentUserId,
+            followingId: targetUserId,
+          }),
+        }
+      )
 
       const data = await res.json()
 
